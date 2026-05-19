@@ -6,8 +6,14 @@
     "dev": "nodemon src/server.js"
   },
   "dependencies": {
+    "bcrypt": "^6.0.0",
     "express": "^5.2.1",
-    "socket.io": "^4.8.3"
+    "json": "^11.0.0",
+    "router": "^2.2.0",
+    "router-dom": "^3.0.3",
+    "socket.io": "^4.8.3",
+    "token": "^0.1.0",
+    "web": "^0.0.2"
   },
   "devDependencies": {
     "nodemon": "^3.1.14"
