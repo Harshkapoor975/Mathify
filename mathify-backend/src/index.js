@@ -1,4 +1,6 @@
 const express = require('express');
+const authRoutes = require('./modules/auth/auth.routes') ;
+const cors = require('cors') ;
 
 const {
     createGame,
@@ -8,6 +10,8 @@ const {
 const app = express();
 
 app.use(express.json());
+app.use("/api/auth", authRoutes); 
+app.use(cors()) ;
 
 app.post('/start-game', (req, res) => {
 

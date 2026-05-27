@@ -1,6 +1,8 @@
-import express from "express" ;
+// import express from "express" ;
 
-import {signup,login} from "./auth.controller.js" ;
+// import {signup,login} from "./auth.controller.js" ;
+const express = require('express');
+const {signup,login} = require('./auth.controller') ;
 
 const router = express.Router() ;
 
