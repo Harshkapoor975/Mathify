@@ -71,9 +71,13 @@ function createGame(
     player2Id
 ) {
 
+    // Add this field inside createGame(), alongside winner: null
+
     const game = {
 
         id: roomId,
+
+        playerIds: [player1Id, player2Id] ,
 
         questions:
             generateQuestions(20),

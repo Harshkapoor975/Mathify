@@ -6,6 +6,7 @@ const signupService = async (data) => {
 
     const {
         username,
+        fullName ,
         email,
         password
     } = data;
@@ -24,8 +25,9 @@ const signupService = async (data) => {
 
     const user = await User.create({
         username,
+        fullName ,
         email,
-        password:hashedPassword,
+        password,
         rating:1000,
         matchesPlayed:0
     });
