@@ -1,11 +1,8 @@
-// import User from "../models/user.model.js";
-// import bcrypt from "bcrypt";
-// import jwt from "jsonwebtoken";
-const User = require("../models/user.model");
+const User = require("../../models/user.model");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
-export const signupService = async (data) => {
+const signupService = async (data) => {
 
     const {
         username,
@@ -41,7 +38,7 @@ export const signupService = async (data) => {
 
 };
 
-export const loginService = async (data) => {
+const loginService = async (data) => {
 
     const {
         email,
@@ -88,3 +85,8 @@ export const loginService = async (data) => {
     };
 
 };
+
+module.exports = {
+    signupService,
+    loginService
+}

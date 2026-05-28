@@ -1,7 +1,7 @@
 // import {signupService,loginService} from "./auth.service.js" ;
 const {signupService,loginService} = require('./auth.service') ;
 
-export const signup = async (req , res) => {
+const signup = async (req , res) => {
     try {
         const result = await signupService(req.body) ;
 
@@ -19,7 +19,7 @@ export const signup = async (req , res) => {
     }
 };
 
-export const login = async (req,res) => {
+ const login = async (req,res) => {
     try {
 
         const result = await loginService(req.body);
@@ -40,3 +40,8 @@ export const login = async (req,res) => {
 
     }
 };
+
+module.exports = {
+    signup,
+    login
+}

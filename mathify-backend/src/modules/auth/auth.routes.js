@@ -9,4 +9,5 @@ const router = express.Router() ;
 router.post("/signup",signup) ;
 router.post("/login",login) ;
 
-export default router ;
+// export default router ;
+module.exports = router ;
