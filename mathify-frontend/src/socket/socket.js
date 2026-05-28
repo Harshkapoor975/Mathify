@@ -9,18 +9,19 @@ const SOCKET_URL =
 function getSocketOptions() {
     const token = localStorage.getItem("token");
 
-    if (!token) {
-        return {
-            autoConnect: true
-        };
+    const options = {
+        autoConnect: true,
+        transports: ["websocket", "polling"],
+        reconnectionDelay: 1000,
+        reconnection: true,
+        reconnectionAttempts: 5
+    };
+
+    if (token) {
+        options.auth = { token };
     }
 
-    return {
-        autoConnect: true,
-        auth: {
-            token
-        }
-    };
+    return options;
 }
 
 export function getSocket() {

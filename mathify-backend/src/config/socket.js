@@ -7,10 +7,11 @@ const registerGameHandlers =
 function setupSocket(server) {
 
     const io = new Server(server, {
-
         cors: {
             origin: "*"
-        }
+        },
+        transports: ["websocket", "polling"],
+        allowEIO3: true
     });
 
     console.log("Socket setup initialized");
