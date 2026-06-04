@@ -21,21 +21,39 @@ const signupService = async (data) => {
         throw new Error("User already exists");
     }
 
-    const hashedPassword = await bcrypt.hash(password,10);
-
     const user = await User.create({
         username,
-        fullName ,
+        fullName,
         email,
         password,
-        rating:1000,
-        matchesPlayed:0
+        rating: 1000,
+        wins: 0,
+        losses: 0
     });
 
+    // Generate token after signup
+    const token = jwt.sign(
+        {
+            _id: user._id,
+            username: user.username,
+            email: user.email
+        },
+        process.env.ACCESS_TOKEN_SECRET,
+        {
+            expiresIn: "7d"
+        }
+    );
+
     return {
-        id:user._id,
-        username:user.username,
-        email:user.email
+        token,
+        user: {
+            _id: user._id,
+            username: user.username,
+            email: user.email,
+            rating: user.rating,
+            wins: user.wins,
+            losses: user.losses
+        }
     };
 
 };
@@ -68,21 +86,25 @@ const loginService = async (data) => {
 
     const token = jwt.sign(
         {
-            id:user._id,
-            username:user.username
+            _id: user._id,
+            username: user.username,
+            email: user.email
         },
-        process.env.JWT_SECRET,
+        process.env.ACCESS_TOKEN_SECRET,
         {
-            expiresIn:"7d"
+            expiresIn: "7d"
         }
     );
 
     return {
         token,
-        user:{
-            id:user._id,
-            username:user.username,
-            email:user.email
+        user: {
+            _id: user._id,
+            username: user.username,
+            email: user.email,
+            rating: user.rating,
+            wins: user.wins,
+            losses: user.losses
         }
     };
 

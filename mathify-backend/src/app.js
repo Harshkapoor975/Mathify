@@ -1,5 +1,7 @@
 const express = require('express');
 const authRoutes = require('./modules/auth/auth.routes');
+const userRoutes = require('./modules/user/user.routes');
+const { ApiError } = require('./utils/ApiError');
 const cors = require('cors');
 
 const {
@@ -10,8 +12,33 @@ const {
 const app = express();
 
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+    origin: (origin, callback) => {
+        // Allow all origins in development
+        callback(null, true);
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use("/api/auth", authRoutes);
+app.use("/api/users", userRoutes);
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+    if (err instanceof ApiError) {
+        return res.status(err.statusCode).json({
+            success: false,
+            message: err.message,
+            errors: err.errors
+        });
+    }
+
+    res.status(500).json({
+        success: false,
+        message: err.message || 'Internal Server Error'
+    });
+});
 
 // app.get('/', (req, res) => {
 //     res.json({ message: 'Backend is running!' });

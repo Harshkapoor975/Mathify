@@ -1,6 +1,3 @@
-// import mongoose , {Schema} from "mongoose";
-// import jwt from "jsonwebtoken";
-// import bcrypt from "bcrypt"
 const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken") ;
 const bcrypt = require("bcrypt") ;
@@ -30,8 +27,20 @@ const userSchema = new mongoose.Schema({
     },
     refreshtoken : {
         type  : String ,
-    }
-},{timeStamps:true })
+    },
+    gamesPlayed : {
+        type : Number ,
+        default : 0 ,
+    },
+    wins : {
+        type : Number ,
+        default : 0 ,   
+    } ,
+    losses : {
+        type : Number ,
+        default : 0 ,   
+    } ,
+},{timestamps:true })
 
 userSchema.pre("save", async function (){
     if(!this.isModified("password"))
@@ -45,7 +54,7 @@ userSchema.pre("save", async function (){
 userSchema.methods.isPasswordCorrect = async function(password){
     return await bcrypt.compare(password,this.password)
 }
-
+// DEFINED BUT NEVER CALLED
 userSchema.methods.generateAccessToken = function(){
     return jwt.sign(
         {
@@ -75,5 +84,4 @@ userSchema.methods.generateRefreshToken = function(){
 
 const User = mongoose.model('User',userSchema);
 
-// export default User ;
 module.exports = User ;

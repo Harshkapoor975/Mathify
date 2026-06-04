@@ -20,17 +20,28 @@ async function updateRatings(winnerId, loserId) {
     if (!winner || !loser) return;
 
     const { winnerDelta, loserDelta } = calcElo(winner.rating, loser.rating);
+    const winnerRatingBefore = winner.rating;
+    const loserRatingBefore = loser.rating;
+    const winnerRatingAfter = winner.rating + winnerDelta;
+    const loserRatingAfter = loser.rating + loserDelta;
 
     await Promise.all([
         User.findByIdAndUpdate(winnerId, {
-            $inc: { rating: winnerDelta, wins: 1 },
+            $inc: { rating: winnerDelta, wins: 1, gamesPlayed: 1 },
         }),
         User.findByIdAndUpdate(loserId, {
-            $inc: { rating: loserDelta, losses: 1 },
+            $inc: { rating: loserDelta, losses: 1, gamesPlayed: 1 },
         }),
     ]);
 
-    return { winnerDelta, loserDelta };
+    return {
+        winnerDelta,
+        loserDelta,
+        winnerRatingBefore,
+        loserRatingBefore,
+        winnerRatingAfter,
+        loserRatingAfter
+    };
 }
 
 module.exports = { updateRatings, calcElo };

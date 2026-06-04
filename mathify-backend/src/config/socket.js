@@ -30,7 +30,7 @@ function setupSocket(server) {
         try {
             const decoded = jwt.verify(
                 token,
-                process.env.JWT_SECRET
+                process.env.ACCESS_TOKEN_SECRET
             );
 
             socket.user = decoded;
@@ -47,6 +47,14 @@ function setupSocket(server) {
             `User connected: ${socket.id}`
         );
         console.log("Connection event fired");
+
+        socket.on("ping", (data) => {
+        console.log("Ping received:", data);
+
+        socket.emit("pong", {
+            success: true
+        });
+    });
 
         registerGameHandlers(io, socket);
 

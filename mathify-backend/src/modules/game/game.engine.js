@@ -1,6 +1,14 @@
 const games =
     require("./game.store");
 
+const GAME_STATES = {
+    WAITING: "Waiting",
+    PLAYING: "Playing",
+    PAUSED: "Paused",
+    COMPLETED: "Completed",
+    ABORTED: "Aborted"
+};
+
 function generateQuestion() {
 
     const a =
@@ -71,13 +79,25 @@ function createGame(
     player2Id
 ) {
 
-    // Add this field inside createGame(), alongside winner: null
-
     const game = {
 
         id: roomId,
 
+        state: GAME_STATES.PLAYING ,
+
         playerIds: [player1Id, player2Id] ,
+
+        disconnectedPlayerId: null,
+
+        pausedAt: null,
+
+        abortedBy: null,
+
+        persisted: false,
+
+        startedAt: Date.now(),
+
+        endedAt: null,
 
         questions:
             generateQuestions(20),
@@ -144,8 +164,40 @@ function submitAnswer(
         };
     }
 
+    if (game.state === GAME_STATES.PAUSED) {
+
+        return {
+            error:
+                "Game paused"
+        };
+    }
+
+    if (game.state === GAME_STATES.ABORTED) {
+
+        return {
+            error:
+                "Game aborted"
+        };
+    }
+
+    if (game.state !== GAME_STATES.PLAYING) {
+
+        return {
+            error:
+                "Game is not accepting answers"
+        };
+    }
+
     const player =
         game.players[playerId];
+
+    if (!player) {
+
+        return {
+            error:
+                "Player not in game"
+        };
+    }
 
     const question =
         getCurrentQuestion(
@@ -168,6 +220,12 @@ function submitAnswer(
 
             game.winner =
                 playerId;
+
+            game.state =
+                GAME_STATES.COMPLETED;
+
+            game.endedAt =
+                Date.now();
         }
 
         return {
@@ -197,11 +255,108 @@ function submitAnswer(
     };
 }
 
+function pauseGame(
+    roomId,
+    playerId
+) {
+
+    const game =
+        games.get(roomId);
+
+    if (
+        !game ||
+        game.state !== GAME_STATES.PLAYING
+    ) {
+        return game;
+    }
+
+    game.state =
+        GAME_STATES.PAUSED;
+
+    game.disconnectedPlayerId =
+        playerId;
+
+    game.pausedAt =
+        Date.now();
+
+    return game;
+}
+
+function resumeGame(
+    roomId,
+    playerId
+) {
+
+    const game =
+        games.get(roomId);
+
+    if (
+        !game ||
+        game.state !== GAME_STATES.PAUSED
+    ) {
+        return game;
+    }
+
+    if (
+        game.disconnectedPlayerId &&
+        game.disconnectedPlayerId !== playerId
+    ) {
+        return game;
+    }
+
+    game.state =
+        GAME_STATES.PLAYING;
+
+    game.disconnectedPlayerId =
+        null;
+
+    game.pausedAt =
+        null;
+
+    return game;
+}
+
+function abortGame(
+    roomId,
+    abortedBy
+) {
+
+    const game =
+        games.get(roomId);
+
+    if (
+        !game ||
+        game.state === GAME_STATES.COMPLETED ||
+        game.state === GAME_STATES.ABORTED
+    ) {
+        return game;
+    }
+
+    game.state =
+        GAME_STATES.ABORTED;
+
+    game.abortedBy =
+        abortedBy;
+
+    game.endedAt =
+        Date.now();
+
+    return game;
+}
+
 module.exports = {
+
+    GAME_STATES,
 
     createGame,
 
     submitAnswer,
 
-    getCurrentQuestion
+    getCurrentQuestion,
+
+    pauseGame,
+
+    resumeGame,
+
+    abortGame
 };
