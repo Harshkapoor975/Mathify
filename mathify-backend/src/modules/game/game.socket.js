@@ -70,14 +70,25 @@ function emitGameResumed(socket, io, game, userId) {
     const question = getCurrentQuestion(game, userId);
 
     socket.join(game.id);
-    socket.emit("game_resumed", {
+
+    const resumeForPlayer = {
         roomId: game.id,
         question: question?.text,
         myUserId: userId,
         opponentId: getOpponentId(game, userId),
         progress: getProgress(game)
-    });
+    };
 
+    socket.emit("game_resumed", resumeForPlayer);
+
+    const resumeForRoom = {
+        roomId: game.id,
+        state: game.state,
+        resumedBy: userId,
+        progress: getProgress(game)
+    };
+
+    socket.to(game.id).emit("game_resumed", resumeForRoom);
     io.to(game.id).emit("game_state_changed", {
         roomId: game.id,
         state: game.state,

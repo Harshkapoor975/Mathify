@@ -67,11 +67,21 @@ export default function GamePage({ user, onProfile, onLogout }) {
         }
 
         function handleGameResumed(data) {
-            setRoomId(data.roomId);
-            setQuestion(data.question);
-            setOpponentId(data.opponentId ?? null);
-            setMyUserId(data.myUserId);
-            setProgress(data.progress ?? {});
+            if (data.roomId) {
+                setRoomId(data.roomId);
+            }
+            if (data.question) {
+                setQuestion(data.question);
+            }
+            if (data.opponentId !== undefined) {
+                setOpponentId(data.opponentId ?? null);
+            }
+            if (data.myUserId) {
+                setMyUserId(data.myUserId);
+            }
+            if (data.progress) {
+                setProgress(data.progress);
+            }
             setStatus("playing");
             setTimeout(() => inputRef.current?.focus(), 100);
         }
