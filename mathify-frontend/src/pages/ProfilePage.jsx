@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 
 const API = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
-export default function ProfilePage({ token, onBack, onLogout }) {
+export default function ProfilePage({ token, onBack, onLogout,onLeaderboard }) {
     const [profile, setProfile] = useState(null);
     const [matches, setMatches] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -86,6 +86,7 @@ export default function ProfilePage({ token, onBack, onLogout }) {
                 <div className="profile-actions">
                     <button className="btn-secondary" onClick={onBack}>Play</button>
                     <button className="btn-danger" onClick={onLogout}>Log out</button>
+                    <button className="btn-lead" onClick={onLeaderboard}>Leaderboard</button>
                 </div>
             </header>
 
@@ -97,6 +98,7 @@ export default function ProfilePage({ token, onBack, onLogout }) {
                             <p className="profile-name">{profile.username}</p>
                             <p className="profile-email">{profile.email}</p>
                         </div>
+                        
                     </div>
 
                     <div className="profile-grid">

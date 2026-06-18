@@ -85,4 +85,9 @@ userSchema.methods.generateRefreshToken = function(){
 
 const User = mongoose.model('User',userSchema);
 
+// const users = await User.find().select("username rating") ;
+// for(const u of users){
+//     await redis.zadd("leadrboard",u.rating,u.username) ;
+// }
+
 module.exports = User ;

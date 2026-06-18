@@ -3,7 +3,7 @@ import getSocket from "../socket/socket";
 import ProgressBar from "../components/ProgressBar";
 import ScorePill from "../components/ScorePill";
 
-export default function GamePage({ user, onProfile, onLogout }) {
+export default function GamePage({ user, onProfile, onLogout,onLeaderboard }) {
     const [status, setStatus] = useState("idle");
     const [roomId, setRoomId] = useState(null);
     const [question, setQuestion] = useState("");
@@ -90,7 +90,12 @@ export default function GamePage({ user, onProfile, onLogout }) {
             setStatus("aborted");
         }
 
-        function handleConnectError() {
+        function handleConnectError(err) {
+            if (err?.message?.includes("Unauthorized")) {
+                onLogout();
+                return;
+            }
+
             setStatus("idle");
         }
 
@@ -166,6 +171,9 @@ export default function GamePage({ user, onProfile, onLogout }) {
                         </button>
                     )}
                     <button className="btn-danger" type="button" onClick={onLogout}>Log out</button>
+                    <button className="btn-secondary" type="button" onClick={onLeaderboard}>
+                        Leaderboard
+                    </button>
                 </div>
             </header>
 

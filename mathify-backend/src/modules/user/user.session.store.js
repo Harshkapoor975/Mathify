@@ -7,6 +7,7 @@ const USER_STATES = {
 
 const RECONNECTING_MS = 15_000;
 const ABORT_MS = 30_000;
+let activeSessions = 0 ;
 
 const userSessions = new Map();
 
@@ -112,6 +113,10 @@ function removeUserSession(userId) {
     userSessions.delete(userId);
 }
 
+function getActiveSessionsCount(){
+    return userSessions.size ;
+}
+
 module.exports = {
     USER_STATES,
     RECONNECTING_MS,
@@ -122,5 +127,6 @@ module.exports = {
     setUserRoom,
     markUserReconnecting,
     abortUserSession,
-    removeUserSession
+    removeUserSession,
+    getActiveSessionsCount
 };

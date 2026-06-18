@@ -9,6 +9,14 @@ const GAME_STATES = {
     ABORTED: "Aborted"
 };
 
+const GAME_TYPES = {
+    BLITZ : "Blitz" ,
+    Survival : "Survival" ,
+    FlashAnzan : "FlashAnzan" ,
+    Classic : "Classic" 
+}
+
+let matchesCreated = 0 ;
 function generateQuestion() {
 
     const a =
@@ -122,9 +130,56 @@ function createGame(
         winner: null
     };
 
+    if(games.has(roomId)){
+        return games.get(roomId) ;
+    }
     games.set(roomId, game);
 
+    matchesCreated++ ;
+
     return game;
+}
+
+// function createSurvivalGame(roomId,playerId,player2Id){
+//     const game = {
+//         id : roomId ,
+//         state : GAME_STATES.PLAYING ,
+//         playerIds : [playerId,player2Id] ,
+//         disconnectedPlayerId : null ,
+//         pausedAt : null ,
+//         abortedBy : null ,
+//         persisted : false ,
+//         startedAt : Date.now() ,
+//         endedAt : null ,
+//         questions : generateQuestions(80) ,
+//         players : {
+//             [player1Id] : {
+//                 score : 0 ,
+//             },
+//             [player2Id] : {
+//                 score : 0 ,
+//             }
+//         }
+//     }
+// }
+
+// we will create new create game function which will take gameType as parameter and will be easier to debug
+function createGameWithType(roomId,player1Id,player2Id,gameType){
+    if(gameType === GAME_TYPES.BLITZ){
+        return createGame(roomId,player1Id,player2Id) ;
+    }
+    else if(gameType === GAME_TYPES.Survival){
+        return createSurvivalGame(roomId,player1Id,player2Id) ;
+    }
+    else if(gameType === GAME_TYPES.FlashAnzan){
+        return createFlashAnzanGame(roomId,player1Id,player2Id) ;
+    }
+    else if(gameType === GAME_TYPES.Classic){
+        return createClassicGame(roomId,player1Id,player2Id) ;
+    }
+    else{
+        return createGame(roomId,player1Id,player2Id) ;
+    }
 }
 
 function getCurrentQuestion(
@@ -157,6 +212,7 @@ function submitAnswer(
     }
 
     if (game.winner) {
+
 
         return {
             error:
@@ -226,6 +282,11 @@ function submitAnswer(
 
             game.endedAt =
                 Date.now();
+
+            setTimeout(() => {
+                    games.delete(roomId);
+                }, 60000);
+
         }
 
         return {
@@ -344,11 +405,17 @@ function abortGame(
     return game;
 }
 
+
+function getMatchesCreated() {
+    return matchesCreated;
+}
 module.exports = {
 
     GAME_STATES,
 
     createGame,
+
+    createGameWithType ,
 
     submitAnswer,
 
@@ -358,5 +425,8 @@ module.exports = {
 
     resumeGame,
 
-    abortGame
+    abortGame ,
+
+    getMatchesCreated
+     
 };

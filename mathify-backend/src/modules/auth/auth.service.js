@@ -1,6 +1,7 @@
 const User = require("../../models/user.model");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const redis = require("../../config/redis");
 
 const signupService = async (data) => {
 
@@ -30,6 +31,8 @@ const signupService = async (data) => {
         wins: 0,
         losses: 0
     });
+
+    await redis.zadd("leaderboard", 1000, user.username);
 
     // Generate token after signup
     const token = jwt.sign(

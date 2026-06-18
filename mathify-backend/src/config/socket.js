@@ -28,12 +28,10 @@ function setupSocket(server) {
         }
 
         try {
-            // const decoded = jwt.verify(
-            //     token,
-            //     process.env.ACCESS_TOKEN_SECRET
-            // );
-            const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            console.log("Socket auth successful for userid : " , decoded) ;
+            // when is the decoded coming as undefined - > when the user had already logged in and browser remembers it in cache 
+            // 
             socket.user = decoded;
             return next();
         } catch (err) {
@@ -57,15 +55,17 @@ function setupSocket(server) {
         });
     });
 
-        registerGameHandlers(io, socket);
+    registerGameHandlers(io, socket);
 
-        socket.on("disconnect", () => {
+    socket.on("disconnect", () => {
 
-            console.log(
-                `User disconnected: ${socket.id}`
-            );
-        });
+        console.log(
+            `User disconnected: ${socket.id}`
+        );
     });
+    });
+
+    return io ;
 }
 
 module.exports = setupSocket;

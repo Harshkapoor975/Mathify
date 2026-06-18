@@ -2,6 +2,8 @@ const User = require("../../models/user.model");
 
 const K_FACTOR = 32;
 
+const redis = require("../../config/redis") ;
+
 function calcElo(winnerRating, loserRating) {
     const expectedWinner = 1 / (1 + Math.pow(10, (loserRating - winnerRating) / 400));
     const expectedLoser  = 1 - expectedWinner;
@@ -33,6 +35,10 @@ async function updateRatings(winnerId, loserId) {
             $inc: { rating: loserDelta, losses: 1, gamesPlayed: 1 },
         }),
     ]);
+
+    // Update the leaderboard in Redis
+    await redis.zadd("leaderboard", winner.rating + winnerDelta, winner.username);
+    await redis.zadd("leaderboard", loser.rating + loserDelta, loser.username);
 
     return {
         winnerDelta,

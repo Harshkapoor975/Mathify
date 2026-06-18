@@ -1,53 +1,101 @@
+# # # config:
+# # #   target: "http://localhost:3000"
+
+# # #   phases:
+# # #     - duration: 60
+# # #       arrivalRate: 5
+
+# # #   engines:
+# # #     socketio-v3: {}
+
+# # # scenarios:
+# # #   - name: "Realtime Players"
+# # #     engine: socketio-v3
+
+# # #     flow:
+# # #       - think: 2
+
+# # #       - emit:
+# # #           channel: "ping"
+# # #           data:
+# # #             msg: "hello"
+
+# # #       - think: 10
+# # config:
+# #   target: "http://localhost:3000" # Your backend URL
+# #   engines:
+# #     socketio: {} # You MUST use the socket.io engine plugin
+# #   phases:
+# #     - duration: 60
+# #       arrivalRate: 5 # Ramps up load smoothly (5 users per second)
+
+# # scenarios:
+# #   - name: "Full Match Lifecycle"
+# #     engine: socketio
+# #     flow:
+# #       # 1. Connect and Join Queue
+# #       - emit:
+# #           channel: "joinQueue" # Replace with your exact event name from game.socket.js
+# #           data: { "userId": "test_user_id" } 
+      
+# #       # 2. Wait in queue and let the matchmaking service run
+# #       - think: 3 
+      
+# #       # 3. Game Loop (Answer 5 questions sequentially)
+# #       - loop:
+# #           - think: 4 # The human "think time" to read and solve the math problem
+# #           - emit:
+# #               channel: "submitAnswer" # Replace with your answer event
+# #               data: { "answer": 42 }
+# #         count: 5 # Runs the think/emit block 5 times
+
+# #       # 4. Stay connected briefly to receive the final ELO update, then disconnect
+# #       - think: 2
 # config:
-#   target: "http://localhost:3000"
+#   target: "ws://localhost:3000"
 
 #   phases:
-#     - duration: 60
-#       arrivalRate: 5
+#     - duration: 120
+#       arrivalRate: 60
 
 #   engines:
 #     socketio-v3: {}
 
 # scenarios:
-#   - name: "Realtime Players"
-#     engine: socketio-v3
+#   - engine: socketio-v3
 
 #     flow:
-#       - think: 2
-
 #       - emit:
-#           channel: "ping"
-#           data:
-#             msg: "hello"
-
-#       - think: 10
+#           channel: "find_match"
+#           think: 2 
+#       - emit:
+#           channel: "submitAnswer"
+#           think : 2
+#       - think: 30
 config:
-  target: "http://localhost:3000" # Your backend URL
-  engines:
-    socketio: {} # You MUST use the socket.io engine plugin
+  target: "ws://localhost:3000"
   phases:
     - duration: 60
-      arrivalRate: 5 # Ramps up load smoothly (5 users per second)
+      arrivalRate: 10
+
+  engines:
+    socketio-v3: {}
 
 scenarios:
-  - name: "Full Match Lifecycle"
-    engine: socketio
+  - engine: socketio-v3
     flow:
-      # 1. Connect and Join Queue
       - emit:
-          channel: "joinQueue" # Replace with your exact event name from game.socket.js
-          data: { "userId": "test_user_id" } 
-      
-      # 2. Wait in queue and let the matchmaking service run
-      - think: 3 
-      
-      # 3. Game Loop (Answer 5 questions sequentially)
-      - loop:
-          - think: 4 # The human "think time" to read and solve the math problem
-          - emit:
-              channel: "submitAnswer" # Replace with your answer event
-              data: { "answer": 42 }
-        count: 5 # Runs the think/emit block 5 times
+          channel: "find_match"
 
-      # 4. Stay connected briefly to receive the final ELO update, then disconnect
+      - think: 2
+
+      # simulate real gameplay loop
+      - loop:
+          - emit:
+              channel: "submitAnswer"
+              data:
+                answer: 42
+          - think: 3
+        count: 10
+
       - think: 2

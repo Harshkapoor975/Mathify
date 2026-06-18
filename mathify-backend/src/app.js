@@ -3,12 +3,17 @@ const authRoutes = require('./modules/auth/auth.routes');
 const userRoutes = require('./modules/user/user.routes');
 const { ApiError } = require('./utils/ApiError');
 const cors = require('cors');
-
+const waitingPlayers = require('./modules/matchmaking/queue.store');
+const games = require('./modules/game/game.store') ;
+// const getMatchesCreated = require('./modules/game/game.engine').getMatchesCreated ;
 const {
+    GAME_STATES,
     createGame,
-    submitAnswer
+    submitAnswer ,
+    getMatchesCreated 
 } = require('./modules/game/game.engine');
-
+const { getActiveSessionsCount } = require('./modules/user/user.session.store') ;
+const leaderboardRoutes = require("./modules/leaderboard/leaderboard.routes") ;
 const app = express();
 
 app.use(express.json());
@@ -23,6 +28,7 @@ app.use(cors({
 }));
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/leaderboard",leaderboardRoutes) ;
 
 // Error handling middleware
 app.use((err, req, res, next) => {
@@ -43,6 +49,31 @@ app.use((err, req, res, next) => {
 app.get("/health", (req, res) => {
     res.status(200).send("OK");
 });
+
+const { Server } = require("socket.io");
+const jwt = require("jsonwebtoken");
+
+const registerGameHandlers =
+    require("./modules/game/game.socket");
+
+
+app.get("/metrics", (req, res) => {
+     const io = req.app.locals.io;
+    res.json({
+        activeSockets: io.engine.clientsCount,
+        waitingPlayers: waitingPlayers.length,
+        activeGames: games.size,
+        matchesCreated : getMatchesCreated() ,
+        activeSessions: getActiveSessionsCount(),
+        // roomsCreated,
+        memoryMB: Math.round(
+            process.memoryUsage().heapUsed /
+            1024 /
+            1024
+        )
+    });
+});
+
 
 // app.get('/', (req, res) => {
 //     res.json({ message: 'Backend is running!' });

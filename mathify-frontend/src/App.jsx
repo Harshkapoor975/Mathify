@@ -5,12 +5,14 @@ import GamePage from "./pages/GamePage";
 import LoginPage from "./pages/LoginPage";
 import ProfilePage from "./pages/ProfilePage";
 import SignupPage from "./pages/SignupPage";
+import LeaderboardPage from "./pages/LeaderboardPage";
 
 const AUTH_VIEWS = {
   LOGIN: "login",
   SIGNUP: "signup",
   GAME: "game",
   PROFILE: "profile",
+  LEADERBOARD: "leaderboard"
 };
 
 function saveAuth(token, user) {
@@ -18,10 +20,39 @@ function saveAuth(token, user) {
   localStorage.setItem("user", JSON.stringify(user));
 }
 
+function parseJwt(token) {
+  const parts = token.split(".");
+  if (parts.length !== 3) {
+    return null;
+  }
+
+  try {
+    const payload = parts[1];
+    const decoded = atob(payload.replace(/-/g, "+").replace(/_/g, "/"));
+    return JSON.parse(decoded);
+  } catch {
+    return null;
+  }
+}
+
+function isJwtExpired(token) {
+  const payload = parseJwt(token);
+  if (!payload || typeof payload.exp !== "number") {
+    return true;
+  }
+
+  return Date.now() >= payload.exp * 1000;
+}
+
 function loadAuth() {
   const token = localStorage.getItem("token");
   const user = localStorage.getItem("user");
-  return token && user ? { token, user: JSON.parse(user) } : null;
+  if (!token || !user || isJwtExpired(token)) {
+    clearAuth();
+    return null;
+  }
+
+  return { token, user: JSON.parse(user) };
 }
 
 function clearAuth() {
@@ -59,8 +90,13 @@ export default function App() {
   }
 
   if (view === AUTH_VIEWS.PROFILE) {
-    return <ProfilePage token={token} onBack={() => setView(AUTH_VIEWS.GAME)} onLogout={handleLogout} />;
+    return <ProfilePage token={token} onBack={() => setView(AUTH_VIEWS.GAME)} onLogout={handleLogout} onLeaderboard={() => setView(AUTH_VIEWS.LEADERBOARD)} />;
   }
 
-  return <GamePage user={user} token={token} onProfile={() => setView(AUTH_VIEWS.PROFILE)} onLogout={handleLogout} />;
+  if (view === AUTH_VIEWS.LEADERBOARD) {
+    return <LeaderboardPage token={token} onBack={() => setView(AUTH_VIEWS.GAME)} />;
+  }
+
+  // return <GamePage user={user} token={token} onProfile={() => setView(AUTH_VIEWS.PROFILE)} onLogout={handleLogout} />;
+  return <GamePage user={user} token={token} onProfile={() => setView(AUTH_VIEWS.PROFILE)} onLogout={handleLogout} onLeaderboard={() => setView(AUTH_VIEWS.LEADERBOARD)} />;
 }
