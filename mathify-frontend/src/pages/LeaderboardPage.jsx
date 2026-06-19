@@ -231,6 +231,7 @@ export default function LeaderboardPage({ token, onBack }) {
     }}>
 
       {/* Header */}
+      
       <div style={{
         padding: "32px 40px 0",
         display: "flex",

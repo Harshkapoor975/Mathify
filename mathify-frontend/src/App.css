@@ -3,7 +3,17 @@
     transform: rotate(360deg);
   }
 }
-
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+#root {
+  width: 100%;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+}
 .root {
   min-height: 100vh;
   background: #0f1117;
@@ -12,6 +22,8 @@
   display: flex;
   flex-direction: column;
 }
+
+
 
 .page {
   min-height: 100vh;

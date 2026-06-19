@@ -134,12 +134,24 @@ function canPersistGame(game) {
     );
 }
 
+// function getScores(game) {
+//     const scores = {};
+
+//     for (const playerId of game.playerIds) {
+//         scores[playerId] =
+//             game.players[playerId]?.currentQuestionIndex ?? 0;
+//     }
+
+//     return scores;
+// }
 function getScores(game) {
     const scores = {};
 
     for (const playerId of game.playerIds) {
-        scores[playerId] =
-            game.players[playerId]?.currentQuestionIndex ?? 0;
+        const player = game.players[playerId];
+
+        // survival uses score, blitz uses currentQuestionIndex
+        scores[playerId] = player?.score ?? player?.currentQuestionIndex ?? 0;
     }
 
     return scores;
@@ -210,28 +222,56 @@ function buildAbortedPlayers(game, scores, ratings) {
     }));
 }
 
+// async function persistCompletedGame(game, scores, duration) {
+//     const { winnerId, loserId } = getWinnerLoser(game);
+
+//     const ratingResult = await updateRatings(
+//         winnerId,
+//         loserId
+//     );
+
+//     if (!ratingResult) {
+//         return null;
+//     }
+
+//     return Match.create({
+//         roomId: game.id,
+//         gameType: "math-race",
+//         players: buildCompletedPlayers(
+//             game,
+//             scores,
+//             ratingResult
+//         ),
+//         winner: winnerId,
+//         status: "completed",
+//         duration
+//     });
+// }
 async function persistCompletedGame(game, scores, duration) {
     const { winnerId, loserId } = getWinnerLoser(game);
 
-    const ratingResult = await updateRatings(
-        winnerId,
-        loserId
-    );
+    const ratingResult = await updateRatings(winnerId, loserId);
 
-    if (!ratingResult) {
-        return null;
-    }
+    if (!ratingResult) return null;
 
     return Match.create({
         roomId: game.id,
-        gameType: "math-race",
-        players: buildCompletedPlayers(
-            game,
-            scores,
-            ratingResult
-        ),
+        gameType: game.type ?? "Blitz",   // ← use actual type
+        players: buildCompletedPlayers(game, scores, ratingResult),
         winner: winnerId,
         status: "completed",
+        duration
+    });
+}
+
+async function persistAbortedGame(game, scores, duration) {
+    const ratings = await getCurrentRatings(game.playerIds);
+
+    return Match.create({
+        roomId: game.id,
+        gameType: game.type ?? "Blitz",   // ← use actual type
+        players: buildAbortedPlayers(game, scores, ratings),
+        status: "abandoned",
         duration
     });
 }
@@ -243,7 +283,7 @@ async function persistAbortedGame(game, scores, duration) {
 
     return Match.create({
         roomId: game.id,
-        gameType: "math-race",
+        gameType: "Blitz",
         players: buildAbortedPlayers(
             game,
             scores,

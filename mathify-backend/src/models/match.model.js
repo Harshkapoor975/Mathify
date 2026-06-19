@@ -9,8 +9,9 @@ const matchSchema = new mongoose.Schema({
    },
 
    gameType: {
-      type: String,
-      required: true
+    type: String,
+    required: true,
+    enum: ["Survival", "Blitz"]
    },
 
    players: [

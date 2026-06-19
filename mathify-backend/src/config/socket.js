@@ -28,7 +28,7 @@ function setupSocket(server) {
         }
 
         try {
-            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
             console.log("Socket auth successful for userid : " , decoded) ;
             // when is the decoded coming as undefined - > when the user had already logged in and browser remembers it in cache 
             // 

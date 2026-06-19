@@ -1,11 +1,11 @@
 
-const waitingPlayers =
+const {blitzWaitingPlayers, survivalWaitingPlayers} =
     require("./queue.store");
 
 function addPlayer(player) {
 
     const alreadyExists =
-        waitingPlayers.find(
+        blitzWaitingPlayers.find(
             (p) =>
                 p.socketId === player.socketId
         );
@@ -19,7 +19,7 @@ function addPlayer(player) {
         return;
     }
 
-    waitingPlayers.push(player);
+    blitzWaitingPlayers.push(player);
 
     console.log(
         "PLAYER ADDED:",
@@ -28,7 +28,7 @@ function addPlayer(player) {
 
     console.log(
         "CURRENT QUEUE:",
-        waitingPlayers.map(
+        blitzWaitingPlayers.map(
             (p) => p.socketId
         )
     );
@@ -37,14 +37,14 @@ function addPlayer(player) {
 function removePlayer(socketId) {
 
     const index =
-        waitingPlayers.findIndex(
+        blitzWaitingPlayers.findIndex(
             (player) =>
                 player.socketId === socketId
         );
 
     if (index !== -1) {
 
-        waitingPlayers.splice(index, 1);
+        blitzWaitingPlayers.splice(index, 1);
 
         console.log(
             "PLAYER REMOVED:",
@@ -54,7 +54,7 @@ function removePlayer(socketId) {
 
     console.log(
         "QUEUE AFTER REMOVE:",
-        waitingPlayers.map(
+        blitzWaitingPlayers.map(
             (p) => p.socketId
         )
     );
@@ -68,10 +68,10 @@ function removePlayer(socketId) {
 
 //     console.log(
 //         "QUEUE SIZE:",
-//         waitingPlayers.length
+//         blitzWaitingPlayers.length
 //     );
 
-//     if (waitingPlayers.length < 2) {
+//     if (blitzWaiting Players.length < 2) {
 
 //         console.log(
 //             "NOT ENOUGH PLAYERS"
@@ -81,10 +81,10 @@ function removePlayer(socketId) {
 //     }
 
 //     const player1 =
-//         waitingPlayers.shift();
+//         blitzWaitingPlayers.shift();
 
 //     const player2 =
-//         waitingPlayers.shift();
+//         blitzWaitingPlayers.shift();
 
 //     console.log(
 //         "MATCH FOUND:",
@@ -98,22 +98,35 @@ function removePlayer(socketId) {
 //     };
 // }
 function findMatch() {
-    if (waitingPlayers.length < 2) return null;
-    const player1 = waitingPlayers[0];
-    const opponentIndex = waitingPlayers.findIndex(
+    if (blitzWaitingPlayers.length < 2) return null;
+    const player1 = blitzWaitingPlayers[0];
+    const opponentIndex = blitzWaitingPlayers.findIndex(
         (p, i) => i !== 0 && p.userId !== player1.userId
     );
     if (opponentIndex === -1) return null;
-    waitingPlayers.splice(0, 1);
-    const player2 = waitingPlayers.splice(opponentIndex - 1, 1)[0];
+    blitzWaitingPlayers.splice(0, 1);
+    const player2 = blitzWaitingPlayers.splice(opponentIndex - 1, 1)[0];
     return { player1, player2 };
 }
 
+function findSurvivalMatch() {
+    if (survivalWaitingPlayers.length < 2) return null;
+    const player1 = survivalWaitingPlayers[0];
+    const opponentIndex = survivalWaitingPlayers.findIndex(
+        (p, i) => i !== 0 && p.userId !== player1.userId
+    );
+    if (opponentIndex === -1) return null;
+    survivalWaitingPlayers.splice(0, 1);
+    const player2 = survivalWaitingPlayers.splice(opponentIndex - 1, 1)[0];
+    return { player1, player2 };
+}
 module.exports = {
 
     addPlayer,
 
     removePlayer,
 
-    findMatch
+    findMatch,
+
+    findSurvivalMatch
 };

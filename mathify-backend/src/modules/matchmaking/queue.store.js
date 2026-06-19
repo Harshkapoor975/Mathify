@@ -1,3 +1,8 @@
-const waitingPlayers = [];
+// const waitingPlayers = [];
+const blitzWaitingPlayers = [];
+const survivalWaitingPlayers = [];
 
-module.exports = waitingPlayers;
+module.exports = {
+    blitzWaitingPlayers,
+    survivalWaitingPlayers
+};

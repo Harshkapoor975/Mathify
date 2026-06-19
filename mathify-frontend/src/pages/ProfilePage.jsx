@@ -85,8 +85,8 @@ export default function ProfilePage({ token, onBack, onLogout,onLeaderboard }) {
                 <span className="logo">Mathify</span>
                 <div className="profile-actions">
                     <button className="btn-secondary" onClick={onBack}>Play</button>
+                     <button className="btn-secondary" onClick={onLeaderboard}>Leaderboard</button>
                     <button className="btn-danger" onClick={onLogout}>Log out</button>
-                    <button className="btn-lead" onClick={onLeaderboard}>Leaderboard</button>
                 </div>
             </header>
 
