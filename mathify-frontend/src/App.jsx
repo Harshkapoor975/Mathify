@@ -1,5 +1,6 @@
 ﻿import "./App.css";
 import { useState } from "react";
+import { BrowserRouter, Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import { resetSocket } from "./socket/socket";
 import GamePage from "./pages/GamePage";
 import LoginPage from "./pages/LoginPage";
@@ -8,21 +9,6 @@ import SignupPage from "./pages/SignupPage";
 import LeaderboardPage from "./pages/LeaderboardPage";
 import LobbyPage from "./pages/LobbyPage";
 import SurvivalPage from "./pages/SurvivalPage";
-
-const VIEWS = {
-    LOGIN: "login",
-    SIGNUP: "signup",
-    LOBBY: "lobby",
-    GAME: "game",
-    SURVIVAL: "survival",
-    PROFILE: "profile",
-    LEADERBOARD: "leaderboard"
-};
-
-function saveAuth(token, user) {
-    localStorage.setItem("token", token);
-    localStorage.setItem("user", JSON.stringify(user));
-}
 
 function parseJwt(token) {
     const parts = token.split(".");
@@ -42,6 +28,11 @@ function isJwtExpired(token) {
     return Date.now() >= payload.exp * 1000;
 }
 
+function saveAuth(token, user) {
+    localStorage.setItem("token", token);
+    localStorage.setItem("user", JSON.stringify(user));
+}
+
 function loadAuth() {
     const token = localStorage.getItem("token");
     const user = localStorage.getItem("user");
@@ -57,78 +48,104 @@ function clearAuth() {
     localStorage.removeItem("user");
 }
 
-export default function App() {
+// Protected Route Component
+function ProtectedRoute({ children, isAuthenticated }) {
+    return isAuthenticated ? children : <Navigate to="/login" replace />;
+}
+
+// Inner App Component with Routes
+function AppRoutes() {
+    const navigate = useNavigate();
     const saved = loadAuth();
-    const savedView = localStorage.getItem("view");
 
-    const initialView = saved
-        ? (Object.values(VIEWS).includes(savedView) ? savedView : VIEWS.LOBBY)
-        : VIEWS.LOGIN;
-
-    const [view, setViewState] = useState(initialView);
     const [token, setToken] = useState(saved?.token ?? null);
     const [user, setUser] = useState(saved?.user ?? null);
-
-    function setView(newView) {
-        localStorage.setItem("view", newView);
-        setViewState(newView);
-    }
+    const [isAuthenticated, setIsAuthenticated] = useState(!!saved);
 
     function handleLoginSuccess(token, user) {
         saveAuth(token, user);
         setToken(token);
         setUser(user);
-        setView(VIEWS.LOBBY);
+        setIsAuthenticated(true);
+        navigate("/lobby");
     }
 
     function handleLogout() {
         clearAuth();
-        localStorage.removeItem("view");
         resetSocket();
         setToken(null);
         setUser(null);
-        setView(VIEWS.LOGIN);
+        setIsAuthenticated(false);
+        navigate("/login");
     }
 
-    const nav = {
-        onLobby: () => setView(VIEWS.LOBBY),
-        onProfile: () => setView(VIEWS.PROFILE),
-        onLeaderboard: () => setView(VIEWS.LEADERBOARD),
+    const navProps = {
+        onLobby: () => navigate("/lobby"),
+        onProfile: () => navigate("/profile/:username"),
+        onLeaderboard: () => navigate("/leaderboard"),
         onLogout: handleLogout
     };
 
-    if (view === VIEWS.LOGIN) {
-        return <LoginPage onSuccess={handleLoginSuccess} onSwitch={() => setView(VIEWS.SIGNUP)} />;
-    }
+    return (
+        <Routes>
+            {/* Auth Routes */}
+            <Route path="/login" element={
+                isAuthenticated ? <Navigate to="/lobby" replace /> : 
+                <LoginPage onSuccess={handleLoginSuccess} onSwitch={() => navigate("/signup")} />
+            } />
+            <Route path="/signup" element={
+                isAuthenticated ? <Navigate to="/lobby" replace /> : 
+                <SignupPage onSuccess={handleLoginSuccess} onSwitch={() => navigate("/login")} />
+            } />
 
-    if (view === VIEWS.SIGNUP) {
-        return <SignupPage onSuccess={handleLoginSuccess} onSwitch={() => setView(VIEWS.LOGIN)} />;
-    }
+            {/* Protected Routes */}
+            <Route path="/lobby" element={
+                <ProtectedRoute isAuthenticated={isAuthenticated}>
+                    <LobbyPage
+                        user={user}
+                        onBlitz={() => navigate("/game")}
+                        onSurvival={() => navigate("/survival")}
+                        {...navProps}
+                    />
+                </ProtectedRoute>
+            } />
 
-    if (view === VIEWS.LOBBY) {
-        return (
-            <LobbyPage
-                user={user}
-                onBlitz={() => setView(VIEWS.GAME)}
-                onSurvival={() => setView(VIEWS.SURVIVAL)}
-                {...nav}
-            />
-        );
-    }
+            <Route path="/game" element={
+                <ProtectedRoute isAuthenticated={isAuthenticated}>
+                    <GamePage user={user} token={token} onBack={() => navigate("/lobby")} {...navProps} />
+                </ProtectedRoute>
+            } />
 
-    if (view === VIEWS.GAME) {
-        return <GamePage user={user} token={token} onBack={() => setView(VIEWS.LOBBY)} {...nav} />;
-    }
+            <Route path="/survival" element={
+                <ProtectedRoute isAuthenticated={isAuthenticated}>
+                    <SurvivalPage user={user} token={token} onBack={() => navigate("/lobby")} {...navProps} />
+                </ProtectedRoute>
+            } />
 
-    if (view === VIEWS.SURVIVAL) {
-        return <SurvivalPage user={user} token={token} onBack={() => setView(VIEWS.LOBBY)} {...nav} />;
-    }
+            <Route path="/profile/:username" element={
+                <ProtectedRoute isAuthenticated={isAuthenticated}>
+                    <ProfilePage token={token} onBack={() => navigate("/lobby")} {...navProps} />
+                </ProtectedRoute>
+            } />
 
-    if (view === VIEWS.PROFILE) {
-        return <ProfilePage token={token} onBack={() => setView(VIEWS.LOBBY)} {...nav} />;
-    }
+            <Route path="/leaderboard" element={
+                <ProtectedRoute isAuthenticated={isAuthenticated}>
+                    <LeaderboardPage token={token} onBack={() => navigate("/lobby")} {...navProps} />
+                </ProtectedRoute>
+            } />
 
-    if (view === VIEWS.LEADERBOARD) {
-        return <LeaderboardPage token={token} onBack={() => setView(VIEWS.LOBBY)} {...nav} />;
-    }
+            {/* Default Route */}
+            <Route path="/" element={<Navigate to={isAuthenticated ? "/lobby" : "/login"} replace />} />
+            <Route path="*" element={<Navigate to={isAuthenticated ? "/lobby" : "/login"} replace />} />
+        </Routes>
+    );
+}
+
+// Main App Component
+export default function App() {
+    return (
+        <BrowserRouter>
+            <AppRoutes />
+        </BrowserRouter>
+    );
 }

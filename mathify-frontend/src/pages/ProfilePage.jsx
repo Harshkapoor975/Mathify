@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-
+import { useParams, useSearchParams } from "react-router-dom";
 const API = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 export default function ProfilePage({ token, onBack, onLogout,onLeaderboard }) {
@@ -7,6 +7,8 @@ export default function ProfilePage({ token, onBack, onLogout,onLeaderboard }) {
     const [matches, setMatches] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    // const username = useParams().username;
+
 
     useEffect(() => {
         if (!token) return;
