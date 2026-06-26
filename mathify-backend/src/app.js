@@ -26,6 +26,7 @@ app.use(cors({
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
+
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/leaderboard",leaderboardRoutes) ;
@@ -58,7 +59,7 @@ const registerGameHandlers =
 
 
 app.get("/metrics", (req, res) => {
-     const io = req.app.locals.io;
+    const io = req.app.locals.io;
     res.json({
         activeSockets: io.engine.clientsCount,
         waitingPlayers: waitingPlayers.length,

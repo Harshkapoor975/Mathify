@@ -1,4 +1,465 @@
+// import { useState, useEffect } from "react";
+
+// const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3000";
+
+// const CROWN_COLORS = {
+//   1: "#FFD700",
+//   2: "#C0C0C0",
+//   3: "#CD7F32"
+// };
+
+// const PODIUM_HEIGHTS = {
+//   1: 160,
+//   2: 120,
+//   3: 90
+// };
+
+// const PODIUM_ORDER = [2, 1, 3];
+
+// function Crown({ color, size = 36 }) {
+//   return (
+//     <svg width={size} height={size} viewBox="0 0 36 36" fill="none" aria-hidden="true">
+//       <polygon
+//         points="4,28 8,14 14,20 18,8 22,20 28,14 32,28"
+//         fill={color}
+//         stroke={color}
+//         strokeWidth="1.5"
+//         strokeLinejoin="round"
+//       />
+//       <rect x="4" y="27" width="28" height="4" rx="2" fill={color} />
+//       <circle cx="4" cy="14" r="2.5" fill={color} />
+//       <circle cx="18" cy="8" r="2.5" fill={color} />
+//       <circle cx="32" cy="14" r="2.5" fill={color} />
+//     </svg>
+//   );
+// }
+
+// function Avatar({ username, size = 48 }) {
+//   const initials = username ? username.slice(0, 2).toUpperCase() : "??";
+//   const colors = [
+//     ["#1a3a5c", "#4a90d9"],
+//     ["#1a3d2e", "#3dba7a"],
+//     ["#3d1a2e", "#d94a8c"],
+//     ["#3d2e1a", "#d9924a"],
+//     ["#2e1a3d", "#8c4ad9"],
+//   ];
+//   const idx = username ? username.charCodeAt(0) % colors.length : 0;
+//   const [bg, text] = colors[idx];
+
+//   return (
+//     <div style={{
+//       width: size,
+//       height: size,
+//       borderRadius: "50%",
+//       background: bg,
+//       display: "flex",
+//       alignItems: "center",
+//       justifyContent: "center",
+//       fontSize: size * 0.33,
+//       fontWeight: 500,
+//       color: text,
+//       flexShrink: 0,
+//       border: "2px solid rgba(255,255,255,0.08)"
+//     }}>
+//       {initials}
+//     </div>
+//   );
+// }
+
+// function PodiumCard({ player, rank }) {
+//   if (!player) {
+//     return (
+//       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
+//         <div style={{
+//           width: 64,
+//           height: 64,
+//           borderRadius: "50%",
+//           background: "rgba(255,255,255,0.05)",
+//           border: "2px dashed rgba(255,255,255,0.1)"
+//         }} />
+//         <div style={{
+//           background: "rgba(255,255,255,0.05)",
+//           borderRadius: 12,
+//           width: 100,
+//           height: PODIUM_HEIGHTS[rank],
+//           display: "flex",
+//           alignItems: "center",
+//           justifyContent: "center",
+//           color: "rgba(255,255,255,0.2)",
+//           fontSize: 28,
+//           fontWeight: 700
+//         }}>
+//           {rank}
+//         </div>
+//       </div>
+//     );
+//   }
+
+//   return (
+//     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
+//       <Crown color={CROWN_COLORS[rank]} size={rank === 1 ? 40 : 30} />
+//       <Avatar username={player.username} size={rank === 1 ? 72 : 56} />
+//       <span style={{
+//         color: "#fff",
+//         fontWeight: 600,
+//         fontSize: rank === 1 ? 16 : 14,
+//         marginTop: 2
+//       }}>
+//         @{player.username}
+//       </span>
+//       <div style={{
+//         display: "flex",
+//         alignItems: "center",
+//         gap: 4,
+//         background: "rgba(255,255,255,0.07)",
+//         borderRadius: 20,
+//         padding: "3px 10px",
+//         fontSize: 13,
+//         color: "#f0c040",
+//         fontWeight: 600
+//       }}>
+//         ★ {player.rating}
+//       </div>
+//       <div style={{
+//         background: rank === 1
+//           ? "linear-gradient(180deg, #2a4a7f 0%, #1a2f55 100%)"
+//           : "rgba(255,255,255,0.06)",
+//         borderRadius: "10px 10px 0 0",
+//         width: rank === 1 ? 130 : 110,
+//         height: PODIUM_HEIGHTS[rank],
+//         display: "flex",
+//         alignItems: "center",
+//         justifyContent: "center",
+//         color: "rgba(255,255,255,0.5)",
+//         fontSize: rank === 1 ? 36 : 28,
+//         fontWeight: 800,
+//         border: rank === 1 ? "1px solid rgba(255,255,255,0.12)" : "none",
+//         marginTop: 6
+//       }}>
+//         {rank === 1 ? "1st" : rank === 2 ? "2nd" : "3rd"}
+//       </div>
+//     </div>
+//   );
+// }
+
+// function RankBadge({ rank }) {
+//   if (rank <= 3) {
+//     return (
+//       <span style={{
+//         display: "inline-flex",
+//         alignItems: "center",
+//         justifyContent: "center",
+//         width: 28,
+//         height: 28,
+//         borderRadius: "50%",
+//         background: rank === 1 ? "#7c5c10" : rank === 2 ? "#3a3a3a" : "#5c3210",
+//         color: CROWN_COLORS[rank],
+//         fontSize: 13,
+//         fontWeight: 700
+//       }}>
+//         {rank}
+//       </span>
+//     );
+//   }
+//   return (
+//     <span style={{
+//       display: "inline-flex",
+//       alignItems: "center",
+//       justifyContent: "center",
+//       width: 28,
+//       height: 28,
+//       color: "rgba(255,255,255,0.4)",
+//       fontSize: 13,
+//       fontWeight: 600
+//     }}>
+//       {rank}
+//     </span>
+//   );
+// }
+
+// export default function LeaderboardPage({ token, onBack }) {
+//   const [players, setPlayers] = useState([]);
+//   const [myRank, setMyRank] = useState(null);
+//   const [loading, setLoading] = useState(true);
+//   const [error, setError] = useState(null);
+//   const [filter, setFilter] = useState("all");
+
+//   useEffect(() => {
+//     async function fetchLeaderboard() {
+//       try {
+//         setLoading(true);
+//         const res = await fetch(`${API_BASE}/api/leaderboard?limit=30`);
+//         const data = await res.json();
+//         if (data.success) {
+//           setPlayers(data.data);
+//         } else {
+//           setError("Failed to load leaderboard");
+//         }
+//       } catch (err) {
+//         setError("Could not connect to server");
+//       } finally {
+//         setLoading(false);
+//       }
+//     }
+
+//     async function fetchMyRank() {
+//       const token = localStorage.getItem("token");
+//       if (!token) return;
+//       try {
+//         const res = await fetch(`${API_BASE}/api/leaderboard/me`, {
+//           headers: { Authorization: `Bearer ${token}` }
+//         });
+//         const data = await res.json();
+//         if (data.success) setMyRank(data.data);
+//       } catch {}
+//     }
+
+//     fetchLeaderboard();
+//     fetchMyRank();
+//   }, []);
+
+//   const top3 = PODIUM_ORDER.map(rank => players.find(p => p.rank === rank) || null);
+//   const rest = players.filter(p => p.rank > 3);
+
+//   return (
+//     <div style={{
+//       minHeight: "100vh",
+//       background: "#0d1117",
+//       color: "#fff",
+//       fontFamily: "Inter, system-ui, sans-serif",
+//       padding: "0 0 60px"
+//     }}>
+
+//       {/* Header */}
+      
+//       <div style={{
+//         padding: "32px 40px 0",
+//         display: "flex",
+//         alignItems: "center",
+//         justifyContent: "space-between"
+//       }}>
+//         <div>
+//           <h1 style={{
+//             margin: 0,
+//             fontSize: 28,
+//             fontWeight: 700,
+//             background: "linear-gradient(135deg, #fff 60%, #4a90d9)",
+//             WebkitBackgroundClip: "text",
+//             WebkitTextFillColor: "transparent"
+//           }}>
+//             Leaderboard
+//           </h1>
+//           <p style={{ margin: "4px 0 0", color: "rgba(255,255,255,0.4)", fontSize: 14 }}>
+//             Top players ranked by ELO rating
+//           </p>
+//         </div>
+
+//         {/* Filter tabs */}
+//         <div style={{
+//           display: "flex",
+//           background: "rgba(255,255,255,0.06)",
+//           borderRadius: 24,
+//           padding: 4,
+//           gap: 2
+//         }}>
+//           {["all", "weekly"].map(f => (
+//             <button
+//               key={f}
+//               onClick={() => setFilter(f)}
+//               style={{
+//                 background: filter === f ? "rgba(255,255,255,0.12)" : "transparent",
+//                 border: "none",
+//                 borderRadius: 20,
+//                 color: filter === f ? "#fff" : "rgba(255,255,255,0.4)",
+//                 padding: "6px 20px",
+//                 fontSize: 13,
+//                 fontWeight: 500,
+//                 cursor: "pointer",
+//                 textTransform: "capitalize",
+//                 transition: "all 0.15s"
+//               }}
+//             >
+//               {f === "all" ? "All time" : "Weekly"}
+//             </button>
+//           ))}
+//           <button
+//   onClick={onBack}
+//   style={{
+//     background: "rgba(255,255,255,0.06)",
+//     border: "1px solid rgba(255,255,255,0.1)",
+//     color: "#fff",
+//     padding: "8px 16px",
+//     borderRadius: 8,
+//     cursor: "pointer"
+//   }}
+// >
+//   ← Back
+// </button>
+//         </div>
+//       </div>
+
+//       {/* My rank banner */}
+//       {myRank && (
+//         <div style={{
+//           margin: "24px 40px 0",
+//           background: "linear-gradient(135deg, #1a2f55, #0f1e38)",
+//           border: "1px solid rgba(74,144,217,0.3)",
+//           borderRadius: 14,
+//           padding: "14px 20px",
+//           display: "flex",
+//           alignItems: "center",
+//           gap: 16
+//         }}>
+//           <div style={{
+//             background: "rgba(74,144,217,0.2)",
+//             borderRadius: 8,
+//             padding: "4px 12px",
+//             fontSize: 12,
+//             color: "#4a90d9",
+//             fontWeight: 600
+//           }}>
+//             YOUR RANK
+//           </div>
+//           <span style={{ fontWeight: 700, fontSize: 22, color: "#4a90d9" }}>
+//             #{myRank.rank}
+//           </span>
+//           <span style={{ color: "rgba(255,255,255,0.6)", fontSize: 14 }}>
+//             @{myRank.username}
+//           </span>
+//           <span style={{ marginLeft: "auto", color: "#f0c040", fontWeight: 600, fontSize: 16 }}>
+//             ★ {myRank.rating}
+//           </span>
+//         </div>
+//       )}
+
+//       {loading ? (
+//         <div style={{
+//           display: "flex",
+//           alignItems: "center",
+//           justifyContent: "center",
+//           height: 300,
+//           color: "rgba(255,255,255,0.3)",
+//           fontSize: 15
+//         }}>
+//           Loading leaderboard...
+//         </div>
+//       ) : error ? (
+//         <div style={{
+//           display: "flex",
+//           alignItems: "center",
+//           justifyContent: "center",
+//           height: 300,
+//           color: "#e24b4a",
+//           fontSize: 15
+//         }}>
+//           {error}
+//         </div>
+//       ) : (
+//         <>
+//           {/* Podium */}
+//           <div style={{
+//             display: "flex",
+//             alignItems: "flex-end",
+//             justifyContent: "center",
+//             gap: 16,
+//             padding: "48px 40px 0",
+//           }}>
+//             {top3.map((player, i) => (
+//               <PodiumCard key={PODIUM_ORDER[i]} player={player} rank={PODIUM_ORDER[i]} />
+//             ))}
+//           </div>
+
+//           {/* Rest of leaderboard */}
+//           {rest.length > 0 && (
+//             <div style={{
+//               margin: "32px 40px 0",
+//               background: "rgba(255,255,255,0.03)",
+//               border: "1px solid rgba(255,255,255,0.07)",
+//               borderRadius: 16,
+//               overflow: "hidden"
+//             }}>
+//               {/* Table header */}
+//               <div style={{
+//                 display: "grid",
+//                 gridTemplateColumns: "52px 1fr 120px 100px",
+//                 padding: "12px 20px",
+//                 borderBottom: "1px solid rgba(255,255,255,0.07)",
+//                 color: "rgba(255,255,255,0.3)",
+//                 fontSize: 12,
+//                 fontWeight: 600,
+//                 textTransform: "uppercase",
+//                 letterSpacing: "0.05em"
+//               }}>
+//                 <span>Rank</span>
+//                 <span>Player</span>
+//                 <span style={{ textAlign: "center" }}>Games</span>
+//                 <span style={{ textAlign: "right" }}>Rating</span>
+//               </div>
+
+//               {/* Rows */}
+//               {rest.map((player, idx) => (
+//                 <div
+//                   key={player.username}
+//                   style={{
+//                     display: "grid",
+//                     gridTemplateColumns: "52px 1fr 120px 100px",
+//                     padding: "14px 20px",
+//                     alignItems: "center",
+//                     borderBottom: idx < rest.length - 1
+//                       ? "1px solid rgba(255,255,255,0.04)"
+//                       : "none",
+//                     transition: "background 0.15s",
+//                     cursor: "default"
+//                   }}
+//                   onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.04)"}
+//                   onMouseLeave={e => e.currentTarget.style.background = "transparent"}
+//                 >
+//                   <RankBadge rank={player.rank} />
+
+//                   <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+//                     <Avatar username={player.username} size={36} />
+//                     <span style={{ fontWeight: 500, fontSize: 15 }}>
+//                       @{player.username}
+//                     </span>
+//                   </div>
+
+//                   <div style={{ textAlign: "center" }}>
+//                     {/* console.log: asset needed — gamesPlayed not in leaderboard payload yet */}
+//                     <span style={{ color: "rgba(255,255,255,0.3)", fontSize: 13 }}>—</span>
+//                   </div>
+
+//                   <div style={{ textAlign: "right" }}>
+//                     <span style={{
+//                       color: "#f0c040",
+//                       fontWeight: 600,
+//                       fontSize: 15
+//                     }}>
+//                       ★ {player.rating}
+//                     </span>
+//                   </div>
+//                 </div>
+//               ))}
+//             </div>
+//           )}
+
+//           {players.length === 0 && (
+//             <div style={{
+//               textAlign: "center",
+//               padding: "80px 0",
+//               color: "rgba(255,255,255,0.2)",
+//               fontSize: 15
+//             }}>
+//               No players yet. Be the first to sign up!
+//             </div>
+//           )}
+//         </>
+//       )}
+//     </div>
+//   );
+// }
 import { useState, useEffect } from "react";
+import Navbar from "../components/Navbar";
+import { getRank } from "../utils/ranks";
 
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
@@ -37,11 +498,11 @@ function Crown({ color, size = 36 }) {
 function Avatar({ username, size = 48 }) {
   const initials = username ? username.slice(0, 2).toUpperCase() : "??";
   const colors = [
-    ["#1a3a5c", "#4a90d9"],
-    ["#1a3d2e", "#3dba7a"],
-    ["#3d1a2e", "#d94a8c"],
-    ["#3d2e1a", "#d9924a"],
-    ["#2e1a3d", "#8c4ad9"],
+    ["#1e2535", "#c5a85c"],
+    ["#1c1f26", "#ffd700"],
+    ["#222530", "#e2e8f0"],
+    ["#151821", "#94a3b8"],
+    ["#2c2415", "#fbbf24"],
   ];
   const idx = username ? username.charCodeAt(0) % colors.length : 0;
   const [bg, text] = colors[idx];
@@ -56,10 +517,10 @@ function Avatar({ username, size = 48 }) {
       alignItems: "center",
       justifyContent: "center",
       fontSize: size * 0.33,
-      fontWeight: 500,
+      fontWeight: 700,
       color: text,
       flexShrink: 0,
-      border: "2px solid rgba(255,255,255,0.08)"
+      border: "2px solid rgba(197,168,92,0.2)"
     }}>
       {initials}
     </div>
@@ -74,19 +535,20 @@ function PodiumCard({ player, rank }) {
           width: 64,
           height: 64,
           borderRadius: "50%",
-          background: "rgba(255,255,255,0.05)",
-          border: "2px dashed rgba(255,255,255,0.1)"
+          background: "rgba(255,255,255,0.02)",
+          border: "2px dashed rgba(255,255,255,0.08)"
         }} />
         <div style={{
-          background: "rgba(255,255,255,0.05)",
-          borderRadius: 12,
-          width: 100,
+          background: "rgba(255,255,255,0.02)",
+          border: "1px solid rgba(255,255,255,0.05)",
+          borderRadius: "12px 12px 0 0",
+          width: 110,
           height: PODIUM_HEIGHTS[rank],
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          color: "rgba(255,255,255,0.2)",
-          fontSize: 28,
+          color: "rgba(255,255,255,0.1)",
+          fontSize: 24,
           fontWeight: 700
         }}>
           {rank}
@@ -95,46 +557,59 @@ function PodiumCard({ player, rank }) {
     );
   }
 
+  const userRank = getRank(player.rating);
+
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
       <Crown color={CROWN_COLORS[rank]} size={rank === 1 ? 40 : 30} />
       <Avatar username={player.username} size={rank === 1 ? 72 : 56} />
       <span style={{
-        color: "#fff",
-        fontWeight: 600,
+        color: "#ffffff",
+        fontWeight: 700,
         fontSize: rank === 1 ? 16 : 14,
-        marginTop: 2
+        marginTop: 2,
+        fontFamily: "'Orbitron', sans-serif"
       }}>
         @{player.username}
       </span>
-      <div style={{
-        display: "flex",
-        alignItems: "center",
-        gap: 4,
-        background: "rgba(255,255,255,0.07)",
-        borderRadius: 20,
-        padding: "3px 10px",
-        fontSize: 13,
-        color: "#f0c040",
-        fontWeight: 600
-      }}>
-        ★ {player.rating}
+      
+      {/* Predefined Rank Badge & Rating */}
+      <div 
+        title={`${userRank.title}: ${userRank.discovery}`}
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 6,
+          background: "rgba(197,168,92,0.1)",
+          border: "1px solid rgba(197,168,92,0.25)",
+          borderRadius: 20,
+          padding: "3px 12px",
+          fontSize: 12,
+          color: "#ffd700",
+          fontWeight: 700
+        }}
+      >
+        <span>{userRank.badge}</span>
+        <span>★ {player.rating}</span>
       </div>
+      
       <div style={{
         background: rank === 1
-          ? "linear-gradient(180deg, #2a4a7f 0%, #1a2f55 100%)"
-          : "rgba(255,255,255,0.06)",
-        borderRadius: "10px 10px 0 0",
-        width: rank === 1 ? 130 : 110,
+          ? "linear-gradient(180deg, rgba(197,168,92,0.25) 0%, rgba(19,23,34,0.6) 100%)"
+          : "rgba(255,255,255,0.03)",
+        border: "1px solid rgba(197,168,92,0.15)",
+        borderRadius: "12px 12px 0 0",
+        width: rank === 1 ? 140 : 115,
         height: PODIUM_HEIGHTS[rank],
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        color: "rgba(255,255,255,0.5)",
-        fontSize: rank === 1 ? 36 : 28,
-        fontWeight: 800,
-        border: rank === 1 ? "1px solid rgba(255,255,255,0.12)" : "none",
-        marginTop: 6
+        color: CROWN_COLORS[rank],
+        fontFamily: "'Orbitron', sans-serif",
+        fontSize: rank === 1 ? 32 : 24,
+        fontWeight: 900,
+        marginTop: 6,
+        boxShadow: rank === 1 ? "0 0 20px rgba(197, 168, 92, 0.1)" : "none"
       }}>
         {rank === 1 ? "1st" : rank === 2 ? "2nd" : "3rd"}
       </div>
@@ -152,10 +627,12 @@ function RankBadge({ rank }) {
         width: 28,
         height: 28,
         borderRadius: "50%",
-        background: rank === 1 ? "#7c5c10" : rank === 2 ? "#3a3a3a" : "#5c3210",
+        background: rank === 1 ? "rgba(255,215,0,0.15)" : rank === 2 ? "rgba(192,192,192,0.15)" : "rgba(205,127,50,0.15)",
         color: CROWN_COLORS[rank],
+        border: `1px solid ${CROWN_COLORS[rank]}44`,
         fontSize: 13,
-        fontWeight: 700
+        fontWeight: 700,
+        fontFamily: "'Orbitron', sans-serif"
       }}>
         {rank}
       </span>
@@ -170,14 +647,15 @@ function RankBadge({ rank }) {
       height: 28,
       color: "rgba(255,255,255,0.4)",
       fontSize: 13,
-      fontWeight: 600
+      fontWeight: 600,
+      fontFamily: "'Orbitron', sans-serif"
     }}>
       {rank}
     </span>
   );
 }
 
-export default function LeaderboardPage({ token, onBack }) {
+export default function LeaderboardPage({ user, token, onBack, onLogout, onProfile, onLobby }) {
   const [players, setPlayers] = useState([]);
   const [myRank, setMyRank] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -222,42 +700,66 @@ export default function LeaderboardPage({ token, onBack }) {
   const rest = players.filter(p => p.rank > 3);
 
   return (
-    <div style={{
+    <div className="root" style={{
       minHeight: "100vh",
-      background: "#0d1117",
+      background: "var(--bg-pitch)",
       color: "#fff",
       fontFamily: "Inter, system-ui, sans-serif",
-      padding: "0 0 60px"
+      padding: "80px 0 60px",
+      position: "relative"
     }}>
+      {/* Floating operator backgrounds */}
+      <div className="bg-operator-watermarks">
+        <span className="op-plus">+</span>
+        <span className="op-minus">−</span>
+        <span className="op-mul">×</span>
+        <span className="op-div">÷</span>
+      </div>
 
-      {/* Header */}
-      
+      {/* Floating corner navbar */}
+      <Navbar
+        user={user}
+        activePage="leaderboard"
+        onLobby={onBack}
+        onProfile={onProfile}
+        onLeaderboard={() => {}}
+        onLogout={onLogout}
+      />
+
+      {/* Header Info */}
       <div style={{
-        padding: "32px 40px 0",
+        padding: "0 40px",
         display: "flex",
         alignItems: "center",
-        justifyContent: "space-between"
+        justifyContent: "space-between",
+        maxWidth: "1000px",
+        margin: "0 auto",
+        width: "100%",
+        zIndex: 10
       }}>
         <div>
+          <div className="agon-tech-tag">Agon Leaderboard</div>
           <h1 style={{
-            margin: 0,
-            fontSize: 28,
-            fontWeight: 700,
-            background: "linear-gradient(135deg, #fff 60%, #4a90d9)",
+            margin: "4px 0 0",
+            fontSize: 32,
+            fontWeight: 900,
+            fontFamily: "'Orbitron', sans-serif",
+            background: "linear-gradient(135deg, #fff 50%, #ffd700 100%)",
             WebkitBackgroundClip: "text",
             WebkitTextFillColor: "transparent"
           }}>
-            Leaderboard
+            Global Standings
           </h1>
-          <p style={{ margin: "4px 0 0", color: "rgba(255,255,255,0.4)", fontSize: 14 }}>
-            Top players ranked by ELO rating
+          <p style={{ margin: "4px 0 0", color: "#64748b", fontSize: 13 }}>
+            Top mathematical pilots ranked by ELO rating
           </p>
         </div>
 
         {/* Filter tabs */}
         <div style={{
           display: "flex",
-          background: "rgba(255,255,255,0.06)",
+          background: "rgba(255,255,255,0.03)",
+          border: "1px solid rgba(255,255,255,0.05)",
           borderRadius: 24,
           padding: 4,
           gap: 2
@@ -267,67 +769,54 @@ export default function LeaderboardPage({ token, onBack }) {
               key={f}
               onClick={() => setFilter(f)}
               style={{
-                background: filter === f ? "rgba(255,255,255,0.12)" : "transparent",
+                background: filter === f ? "rgba(197, 168, 92, 0.15)" : "transparent",
                 border: "none",
                 borderRadius: 20,
-                color: filter === f ? "#fff" : "rgba(255,255,255,0.4)",
+                color: filter === f ? "#ffd700" : "#64748b",
                 padding: "6px 20px",
-                fontSize: 13,
-                fontWeight: 500,
+                fontSize: 12,
+                fontWeight: 700,
+                fontFamily: "'Orbitron', sans-serif",
                 cursor: "pointer",
-                textTransform: "capitalize",
+                textTransform: "uppercase",
                 transition: "all 0.15s"
               }}
             >
               {f === "all" ? "All time" : "Weekly"}
             </button>
           ))}
-          <button
-  onClick={onBack}
-  style={{
-    background: "rgba(255,255,255,0.06)",
-    border: "1px solid rgba(255,255,255,0.1)",
-    color: "#fff",
-    padding: "8px 16px",
-    borderRadius: 8,
-    cursor: "pointer"
-  }}
->
-  ← Back
-</button>
         </div>
       </div>
 
       {/* My rank banner */}
       {myRank && (
         <div style={{
-          margin: "24px 40px 0",
-          background: "linear-gradient(135deg, #1a2f55, #0f1e38)",
-          border: "1px solid rgba(74,144,217,0.3)",
+          margin: "24px auto 0",
+          background: "linear-gradient(135deg, rgba(197,168,92,0.12) 0%, rgba(14,17,24,0.6) 100%)",
+          border: "1px solid var(--border-gold-dim)",
           borderRadius: 14,
-          padding: "14px 20px",
+          padding: "14px 24px",
           display: "flex",
           alignItems: "center",
-          gap: 16
+          gap: 16,
+          maxWidth: "920px",
+          width: "calc(100% - 80px)",
+          zIndex: 10,
+          boxShadow: "0 4px 15px rgba(0,0,0,0.3)"
         }}>
-          <div style={{
-            background: "rgba(74,144,217,0.2)",
-            borderRadius: 8,
-            padding: "4px 12px",
-            fontSize: 12,
-            color: "#4a90d9",
-            fontWeight: 600
-          }}>
+          <div className="agon-tech-tag" style={{ margin: 0, padding: "3px 8px" }}>
             YOUR RANK
           </div>
-          <span style={{ fontWeight: 700, fontSize: 22, color: "#4a90d9" }}>
+          <span style={{ fontWeight: 900, fontSize: 24, color: "#ffd700", fontFamily: "'Orbitron', sans-serif" }}>
             #{myRank.rank}
           </span>
-          <span style={{ color: "rgba(255,255,255,0.6)", fontSize: 14 }}>
+          <span style={{ color: "#ffffff", fontWeight: 700, fontSize: 14 }}>
             @{myRank.username}
           </span>
-          <span style={{ marginLeft: "auto", color: "#f0c040", fontWeight: 600, fontSize: 16 }}>
-            ★ {myRank.rating}
+          
+          <span style={{ marginLeft: "auto", color: "#ffd700", fontWeight: 700, fontSize: 15, display: "flex", alignItems: "center", gap: 6 }}>
+            <span>{getRank(myRank.rating).badge}</span>
+            <span>★ {myRank.rating}</span>
           </span>
         </div>
       )}
@@ -338,10 +827,11 @@ export default function LeaderboardPage({ token, onBack }) {
           alignItems: "center",
           justifyContent: "center",
           height: 300,
-          color: "rgba(255,255,255,0.3)",
-          fontSize: 15
+          color: "rgba(255,255,255,0.2)",
+          fontSize: 14,
+          fontFamily: "'Orbitron', sans-serif"
         }}>
-          Loading leaderboard...
+          Retrieving global registers...
         </div>
       ) : error ? (
         <div style={{
@@ -349,19 +839,20 @@ export default function LeaderboardPage({ token, onBack }) {
           alignItems: "center",
           justifyContent: "center",
           height: 300,
-          color: "#e24b4a",
-          fontSize: 15
+          color: "#ef4444",
+          fontSize: 14,
+          fontFamily: "'Orbitron', sans-serif"
         }}>
           {error}
         </div>
       ) : (
-        <>
+        <div style={{ maxWidth: "1000px", margin: "0 auto", width: "100%", zIndex: 10 }}>
           {/* Podium */}
           <div style={{
             display: "flex",
             alignItems: "flex-end",
             justifyContent: "center",
-            gap: 16,
+            gap: 20,
             padding: "48px 40px 0",
           }}>
             {top3.map((player, i) => (
@@ -373,22 +864,24 @@ export default function LeaderboardPage({ token, onBack }) {
           {rest.length > 0 && (
             <div style={{
               margin: "32px 40px 0",
-              background: "rgba(255,255,255,0.03)",
-              border: "1px solid rgba(255,255,255,0.07)",
+              background: "var(--bg-card)",
+              border: "1px solid var(--border-grey)",
               borderRadius: 16,
-              overflow: "hidden"
+              overflow: "hidden",
+              boxShadow: "0 8px 24px rgba(0,0,0,0.5)"
             }}>
               {/* Table header */}
               <div style={{
                 display: "grid",
-                gridTemplateColumns: "52px 1fr 120px 100px",
-                padding: "12px 20px",
-                borderBottom: "1px solid rgba(255,255,255,0.07)",
-                color: "rgba(255,255,255,0.3)",
-                fontSize: 12,
-                fontWeight: 600,
+                gridTemplateColumns: "64px 1fr 120px 140px",
+                padding: "16px 24px",
+                borderBottom: "1px solid var(--border-grey)",
+                color: "#64748b",
+                fontSize: 11,
+                fontWeight: 800,
+                fontFamily: "'Orbitron', sans-serif",
                 textTransform: "uppercase",
-                letterSpacing: "0.05em"
+                letterSpacing: "1px"
               }}>
                 <span>Rank</span>
                 <span>Player</span>
@@ -397,48 +890,57 @@ export default function LeaderboardPage({ token, onBack }) {
               </div>
 
               {/* Rows */}
-              {rest.map((player, idx) => (
-                <div
-                  key={player.username}
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: "52px 1fr 120px 100px",
-                    padding: "14px 20px",
-                    alignItems: "center",
-                    borderBottom: idx < rest.length - 1
-                      ? "1px solid rgba(255,255,255,0.04)"
-                      : "none",
-                    transition: "background 0.15s",
-                    cursor: "default"
-                  }}
-                  onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.04)"}
-                  onMouseLeave={e => e.currentTarget.style.background = "transparent"}
-                >
-                  <RankBadge rank={player.rank} />
+              {rest.map((player, idx) => {
+                const userRank = getRank(player.rating);
+                return (
+                  <div
+                    key={player.username}
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "64px 1fr 120px 140px",
+                      padding: "14px 24px",
+                      alignItems: "center",
+                      borderBottom: idx < rest.length - 1
+                        ? "1px solid var(--border-grey)"
+                        : "none",
+                      transition: "background 0.15s",
+                      cursor: "default"
+                    }}
+                    onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.02)"}
+                    onMouseLeave={e => e.currentTarget.style.background = "transparent"}
+                  >
+                    <RankBadge rank={player.rank} />
 
-                  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                    <Avatar username={player.username} size={36} />
-                    <span style={{ fontWeight: 500, fontSize: 15 }}>
-                      @{player.username}
-                    </span>
-                  </div>
+                    <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                      <Avatar username={player.username} size={36} />
+                      <span style={{ fontWeight: 700, fontSize: 14, color: "#ffffff" }}>
+                        @{player.username}
+                      </span>
+                    </div>
 
-                  <div style={{ textAlign: "center" }}>
-                    {/* console.log: asset needed — gamesPlayed not in leaderboard payload yet */}
-                    <span style={{ color: "rgba(255,255,255,0.3)", fontSize: 13 }}>—</span>
-                  </div>
+                    <div style={{ textAlign: "center" }}>
+                      <span style={{ color: "#475569", fontSize: 13 }}>—</span>
+                    </div>
 
-                  <div style={{ textAlign: "right" }}>
-                    <span style={{
-                      color: "#f0c040",
-                      fontWeight: 600,
-                      fontSize: 15
-                    }}>
-                      ★ {player.rating}
-                    </span>
+                    <div style={{ textAlign: "right" }}>
+                      <span 
+                        title={`${userRank.title}: ${userRank.discovery}`}
+                        style={{
+                          color: "#ffd700",
+                          fontWeight: 700,
+                          fontSize: 14,
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: 6
+                        }}
+                      >
+                        <span>{userRank.badge}</span>
+                        <span>★ {player.rating}</span>
+                      </span>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
 
@@ -446,13 +948,14 @@ export default function LeaderboardPage({ token, onBack }) {
             <div style={{
               textAlign: "center",
               padding: "80px 0",
-              color: "rgba(255,255,255,0.2)",
-              fontSize: 15
+              color: "#64748b",
+              fontSize: 14,
+              fontFamily: "'Orbitron', sans-serif"
             }}>
-              No players yet. Be the first to sign up!
+              No players currently registered.
             </div>
           )}
-        </>
+        </div>
       )}
     </div>
   );
