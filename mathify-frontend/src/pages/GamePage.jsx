@@ -17,6 +17,9 @@ export default function GamePage({ user, onProfile, onLogout, onLeaderboard, onL
     const [feedback, setFeedback] = useState(null);
     const [opponentId, setOpponentId] = useState(null);
 
+    const [rematchStatus, setRematchStatus] = useState("idle");
+    const [rematchError, setRematchError] = useState(null);
+
     const inputRef = useRef(null);
     const roomIdRef = useRef(null);
 
@@ -35,6 +38,8 @@ export default function GamePage({ user, onProfile, onLogout, onLeaderboard, onL
             setProgress({});
             setWinner(null);
             setFeedback(null);
+            setRematchStatus("idle");
+            setRematchError(null);
             setTimeout(() => inputRef.current?.focus(), 100);
         }
         function handleAnswerResult(data) {
@@ -72,6 +77,27 @@ export default function GamePage({ user, onProfile, onLogout, onLeaderboard, onL
             setStatus("idle");
         }
 
+        function handleOpponentRequestedRematch(data) {
+            console.log("[REMATCH CLIENT] Received opponent_requested_rematch event:", data);
+            setRematchStatus("opponent_requested");
+        }
+        function handleRematchAccepted(data) {
+            console.log("[REMATCH CLIENT] Received rematch_accepted event:", data);
+            setRematchStatus("idle");
+            setRematchError(null);
+            setAnswer("");
+        }
+        function handleRematchDeclined(data) {
+            console.log("[REMATCH CLIENT] Received rematch_declined event:", data);
+            setRematchStatus("idle");
+            setRematchError("Rematch request declined by opponent.");
+        }
+        function handleRematchError(err) {
+            console.log("[REMATCH CLIENT] Received rematch_error event:", err);
+            setRematchStatus("idle");
+            setRematchError(err || "Rematch expired or failed.");
+        }
+
         socket.on("waiting_for_player", handleWaiting);
         socket.on("game_started", handleGameStarted);
         socket.on("answer_result", handleAnswerResult);
@@ -81,6 +107,10 @@ export default function GamePage({ user, onProfile, onLogout, onLeaderboard, onL
         socket.on("game_resumed", handleGameResumed);
         socket.on("game_aborted", handleGameAborted);
         socket.on("connect_error", handleConnectError);
+        socket.on("opponent_requested_rematch", handleOpponentRequestedRematch);
+        socket.on("rematch_accepted", handleRematchAccepted);
+        socket.on("rematch_declined", handleRematchDeclined);
+        socket.on("rematch_error", handleRematchError);
 
         return () => {
             socket.off("waiting_for_player", handleWaiting);
@@ -92,6 +122,10 @@ export default function GamePage({ user, onProfile, onLogout, onLeaderboard, onL
             socket.off("game_resumed", handleGameResumed);
             socket.off("game_aborted", handleGameAborted);
             socket.off("connect_error", handleConnectError);
+            socket.off("opponent_requested_rematch", handleOpponentRequestedRematch);
+            socket.off("rematch_accepted", handleRematchAccepted);
+            socket.off("rematch_declined", handleRematchDeclined);
+            socket.off("rematch_error", handleRematchError);
         };
     }, []);
 
@@ -122,6 +156,20 @@ export default function GamePage({ user, onProfile, onLogout, onLeaderboard, onL
         setFeedback(null);
         setOpponentId(null);
         setMyUserId(null);
+        setRematchStatus("idle");
+        setRematchError(null);
+    }
+
+    function handleRequestRematch() {
+        if (rematchStatus === "requesting") return;
+        setRematchStatus("waiting_opponent");
+        setRematchError(null);
+        getSocket().emit("rematch_request", { roomId });
+    }
+
+    function handleRespondRematch(accept) {
+        setRematchStatus(accept ? "requesting" : "idle");
+        getSocket().emit("rematch_response", { roomId, accept });
     }
 
     const myProgress = progress[myUserId] ?? 0;
@@ -214,10 +262,28 @@ export default function GamePage({ user, onProfile, onLogout, onLeaderboard, onL
                                 <ScorePill label="Opponent" value={opponentProgress} accent="#f9a8d4" />
                             </div>
                             <div className="finish-actions">
-                                <button className="btn-primary" type="button" onClick={handlePlayAgain}>Play Again</button>
+                                {rematchStatus === "idle" && (
+                                    <button className="btn-primary" type="button" onClick={handleRequestRematch}>Rematch</button>
+                                )}
+                                {rematchStatus === "waiting_opponent" && (
+                                    <button className="btn-primary" type="button" disabled style={{ opacity: 0.7 }}>Waiting for opponent...</button>
+                                )}
+                                {rematchStatus === "opponent_requested" && (
+                                    <div style={{ display: "flex", gap: "10px", width: "100%", justifyContent: "center" }}>
+                                        <button className="btn-primary" type="button" onClick={() => handleRespondRematch(true)}>Accept Rematch</button>
+                                        <button className="btn-danger" type="button" onClick={() => handleRespondRematch(false)}>Decline</button>
+                                    </div>
+                                )}
+                                {rematchStatus === "requesting" && (
+                                    <button className="btn-primary" type="button" disabled style={{ opacity: 0.7 }}>Starting match...</button>
+                                )}
+                                <button className="btn-secondary" type="button" onClick={handlePlayAgain}>New Match</button>
                                 <button className="btn-secondary" type="button" onClick={onProfile}>View Profile</button>
                                 <button className="btn-secondary" type="button" onClick={onLobby}>← Lobby</button>
                             </div>
+                            {rematchError && (
+                                <p style={{ color: "#fca5a5", fontSize: "13px", marginTop: "12px", textAlign: "center" }}>{rematchError}</p>
+                            )}
                         </div>
                     )}
 

@@ -117,6 +117,9 @@ export default function SurvivalPage({ user, onProfile, onLogout, onLeaderboard,
     const [lastScorerId, setLastScorerId] = useState(null);
     const [finalScores, setFinalScores] = useState(null);
 
+    const [rematchStatus, setRematchStatus] = useState("idle");
+    const [rematchError, setRematchError] = useState(null);
+
     const inputRef = useRef(null);
     const roomIdRef = useRef(null);
 
@@ -146,6 +149,8 @@ export default function SurvivalPage({ user, onProfile, onLogout, onLeaderboard,
             setFeedback(null);
             setLastScorerId(null);
             setFinalScores(null);
+            setRematchStatus("idle");
+            setRematchError(null);
             setTimeout(() => inputRef.current?.focus(), 100);
         }
 
@@ -198,17 +203,34 @@ export default function SurvivalPage({ user, onProfile, onLogout, onLeaderboard,
             setStatus("idle");
         }
         function handleGameResumed(data) {
-    if (data.roomId) setRoomId(data.roomId);
-    if (data.question) setQuestion(data.question);
-    if (data.opponentId !== undefined) setOpponentId(data.opponentId ?? null);
-    if (data.myUserId) setMyUserId(data.myUserId);
-    if (data.progress) {
-        // survival sends progress as scores keyed by userId
-        setScores(data.progress);
-    }
-    setStatus("playing");
-    setTimeout(() => inputRef.current?.focus(), 100);
-}
+            if (data.roomId) setRoomId(data.roomId);
+            if (data.question) setQuestion(data.question);
+            if (data.opponentId !== undefined) setOpponentId(data.opponentId ?? null);
+            if (data.myUserId) setMyUserId(data.myUserId);
+            if (data.progress) {
+                // survival sends progress as scores keyed by userId
+                setScores(data.progress);
+            }
+            setStatus("playing");
+            setTimeout(() => inputRef.current?.focus(), 100);
+        }
+
+        function handleOpponentRequestedRematch() {
+            setRematchStatus("opponent_requested");
+        }
+        function handleRematchAccepted() {
+            setRematchStatus("idle");
+            setRematchError(null);
+            setAnswer("");
+        }
+        function handleRematchDeclined() {
+            setRematchStatus("idle");
+            setRematchError("Rematch request declined by opponent.");
+        }
+        function handleRematchError(err) {
+            setRematchStatus("idle");
+            setRematchError(err || "Rematch expired or failed.");
+        }
 
         socket.on("waiting_for_player", handleWaiting);
         socket.on("game_started", handleGameStarted);
@@ -219,6 +241,10 @@ export default function SurvivalPage({ user, onProfile, onLogout, onLeaderboard,
         socket.on("game_aborted", handleGameAborted);
         socket.on("connect_error", handleConnectError);
         socket.on("game_resumed", handleGameResumed);
+        socket.on("opponent_requested_rematch", handleOpponentRequestedRematch);
+        socket.on("rematch_accepted", handleRematchAccepted);
+        socket.on("rematch_declined", handleRematchDeclined);
+        socket.on("rematch_error", handleRematchError);
 
         return () => {
             socket.off("waiting_for_player", handleWaiting);
@@ -230,6 +256,10 @@ export default function SurvivalPage({ user, onProfile, onLogout, onLeaderboard,
             socket.off("game_aborted", handleGameAborted);
             socket.off("connect_error", handleConnectError);
             socket.off("game_resumed", handleGameResumed);
+            socket.off("opponent_requested_rematch", handleOpponentRequestedRematch);
+            socket.off("rematch_accepted", handleRematchAccepted);
+            socket.off("rematch_declined", handleRematchDeclined);
+            socket.off("rematch_error", handleRematchError);
         };
     }, []);
 
@@ -268,6 +298,20 @@ export default function SurvivalPage({ user, onProfile, onLogout, onLeaderboard,
         setEndsAt(null);
         setLastScorerId(null);
         setFinalScores(null);
+        setRematchStatus("idle");
+        setRematchError(null);
+    }
+
+    function handleRequestRematch() {
+        if (rematchStatus === "requesting") return;
+        setRematchStatus("waiting_opponent");
+        setRematchError(null);
+        getSocket().emit("rematch_request", { roomId });
+    }
+
+    function handleRespondRematch(accept) {
+        setRematchStatus(accept ? "requesting" : "idle");
+        getSocket().emit("rematch_response", { roomId, accept });
     }
 
     const myScore = finalScores?.[myUserId] ?? scores[myUserId] ?? 0;
@@ -408,8 +452,23 @@ export default function SurvivalPage({ user, onProfile, onLogout, onLeaderboard,
                             <ScorePill label="Opponent" value={opponentScore} accent="#f9a8d4" />
                         </div>
                         <div className="finish-actions">
-                            <button className="btn-primary" type="button" onClick={handlePlayAgain}>
-                                Play Again
+                            {rematchStatus === "idle" && (
+                                <button className="btn-primary" type="button" onClick={handleRequestRematch}>Rematch</button>
+                            )}
+                            {rematchStatus === "waiting_opponent" && (
+                                <button className="btn-primary" type="button" disabled style={{ opacity: 0.7 }}>Waiting for opponent...</button>
+                            )}
+                            {rematchStatus === "opponent_requested" && (
+                                <div style={{ display: "flex", gap: "10px", width: "100%", justifyContent: "center" }}>
+                                    <button className="btn-primary" type="button" onClick={() => handleRespondRematch(true)}>Accept Rematch</button>
+                                    <button className="btn-danger" type="button" onClick={() => handleRespondRematch(false)}>Decline</button>
+                                </div>
+                            )}
+                            {rematchStatus === "requesting" && (
+                                <button className="btn-primary" type="button" disabled style={{ opacity: 0.7 }}>Starting match...</button>
+                            )}
+                            <button className="btn-secondary" type="button" onClick={handlePlayAgain}>
+                                New Match
                             </button>
                             <button className="btn-secondary" type="button" onClick={onProfile}>
                                 View Profile
@@ -418,6 +477,9 @@ export default function SurvivalPage({ user, onProfile, onLogout, onLeaderboard,
                                 Switch to Blitz
                             </button>
                         </div>
+                        {rematchError && (
+                            <p style={{ color: "#fca5a5", fontSize: "13px", marginTop: "12px", textAlign: "center" }}>{rematchError}</p>
+                        )}
                     </div>
                 )}
 

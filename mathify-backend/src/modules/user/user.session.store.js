@@ -38,7 +38,32 @@ function connectUserSession({
 }) {
     const previous = userSessions.get(userId);
 
+    // if (!previous) {
+    //     session = {
+    //         userId,
+    //         socketId,
+    //         roomId,
+    //         state: USER_STATES.CONNECTED,
+    //         isGuest,
+    //         disconnectedAt: null,
+    //         disconnectTimer: null,
+    //         abortTimer: null
+    //     };
+
+    //     userSessions.set(userId, session);
+    //     return session;
+    // }
+
     clearSessionTimers(previous);
+
+
+    // for memory optimization
+    // previous.socketId = socketId ;
+    // previous.roomId = roomId ?? previous?.roomId ?? null ;
+    // previous.state = USER_STATES.CONNECTED ;
+    // previous.disconnectTimer = null ;
+    // previous.abortTimer = null ;
+    // previous.disconnectedAt = null ;
 
     const session = {
         userId,
@@ -52,7 +77,7 @@ function connectUserSession({
     };
 
     userSessions.set(userId, session);
-    return session;
+    return previous;
 }
 
 function setUserRoom(userId, roomId) {
